@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\AuthHelper;
+use App\Http\Helpers\TgHelper;
 use App\Http\Services\MafiaRoleService;
 use App\Http\Services\TelegramService;
 use App\Models\Account;
@@ -121,8 +122,8 @@ class TableController extends Controller
             ]);
         }
 
-        $mafiaResults = $allResults->filter(fn($r) => $r->account->character === 'N')->sortByDesc('total');
-        $peaceResults = $allResults->filter(fn($r) => $r->account->character === 'Y')->sortByDesc('total');
+        $mafiaResults = $allResults->filter(fn($r) => $r->account->character == 'N')->sortByDesc('total');
+        $peaceResults = $allResults->filter(fn($r) => $r->account->character == 'Y')->sortByDesc('total');
 
         $mafiaTotal = $mafiaResults->sum('total');
         $peaceTotal = $peaceResults->sum('total');
@@ -402,7 +403,12 @@ class TableController extends Controller
 
     public function randomRoles($table_id)
     {
-
+        // 1. Защита от повторных кликов и дублирования запросов (Замок на 15 секунд)
+        $lockKey = 'table_randomizing_' . $table_id;
+        if (cache()->has($lockKey)) {
+            return redirect()->route('play', $table_id);
+        }
+        cache()->put($lockKey, true, 15);
 
         $params = request()->all();
 
@@ -410,62 +416,106 @@ class TableController extends Controller
         $table = Table::find($table_id);
         $table->is_with_hanchman = 0;
         $table->save();
+
         if (!$table->step) {
             $table->step = 0;
         }
+
         $game = Game::find($table->game_id);
         $success = $service->randomRoles($table_id);
+
         $map = [
             'Дон',
             'Шулер',
             'Приспешник',
             'Мафия'
         ];
-        $service = new TelegramService();
+
+        $telegramService = new TelegramService();
         $accounts = Account::where('table_id', $table_id)->get();
-        $accounts_count = count($accounts);
-        if($accounts_count <= 10){
-            $table->count_hanchman = 2;
-            $table->save();
-        }
+
+        $table->count_hanchman = 3;
+        $table->save();
 
         $via_email = $params['via'] ?? false;
 
+
+        // 2. Цикл обновления параметров и отправки индивидуальных карт ролей в Telegram
         foreach ($accounts as $account) {
             $account->refresh();
             $account->rating_before_game = $account->rating;
             $account->game_id = $game->id;
+
+            // Если роль мафиозная из массива $map, то ставим 'N', иначе 'Y'
             if (in_array($account->role, $map)) {
                 $account->character = 'N';
             } else {
                 $account->character = 'Y';
             }
 
+            // Модификация Приспешника в обычную Мафию
             if ($account->role == 'Приспешник') {
                 $table->is_with_hanchman = 1;
                 $account->role = 'Мафия';
             }
 
-            if ($account->role == 'Адвокат') {
-
-                // $account->role = 'Фредди';
-            }
             $account->save();
-            sleep(0.5);
+            sleep(1);
+
             if ($via_email) {
-
-                $service->sendRolesViaEmail($account);
+                $telegramService->sendRolesViaEmail($account);
             } else {
-                $service->sendRoles($account);
+                $telegramService->sendRoles($account);
             }
-
         }
-
 
         $table->save();
 
+        // 3. ПЕРЕЗАГРУЗКА ДАННЫХ ИЗ БАЗЫ (Очищаем кэш моделей из памяти PHP)
+        $freshUsers = Account::where('table_id', $table_id)->get();
+
+        // Отдельно собираем Оборотней по названию роли
+        $oborotens = $freshUsers->where('role', '==', 'Оборотень');
+
+        // Идеальный сбор всей мафии (Дон, Мафия, Шулер) по флагу 'N' со строгим сравнением
+        $mafias = $freshUsers->where('character', '==', 'N');
+
+        // 4. Отправка групповых уведомлений Оборотням
+        if ($oborotens->count() > 1) {
+            foreach ($oborotens as $oboroten) {
+                // Исключаем себя из списка строго по уникальному ID
+                $otherOborotens = $oborotens->where('id', '!=', $oboroten->id)->pluck('nickname')->toArray();
+
+                $text = "С вами за столом есть еще Оборотни. Это игроки с никами: " . implode(', ', $otherOborotens);
+
+                TgHelper::sendMessageToCurrentUser($oboroten->telegram_id, $text);
+                sleep(0.5);
+            }
+        }
+
+        // 5. Отправка групповых уведомлений всей Мафии (у кого character == 'N')
+        if ($mafias->count() > 1) {
+            foreach ($mafias as $mafia) {
+
+                // Исключаем себя из списка строго по уникальному ID
+                $otherMafias = $mafias->where('id', '!=', $mafia->id)->pluck('nickname')->toArray();
+
+                $text = "С вами за столом есть еще Мафия. Это игроки с никами: " . implode(', ', $otherMafias);
+
+                // Сообщение гарантированно уйдет и Дону, и Мафии, и Шулеру на их telegram_id
+
+                TgHelper::sendMessageToCurrentUser($mafia->telegram_id, $text);
+                sleep(0.5);
+            }
+        }
+
+        // Удаляем замок перед редиректом
+        cache()->forget($lockKey);
+
         return redirect()->route('play', $table_id);
     }
+
+
 
     public function randomRolesNextTables($table_id)
     {
