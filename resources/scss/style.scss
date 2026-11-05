@@ -1,0 +1,25 @@
+
+@use "utils/normalize" ;
+@use "utils/var";
+@use "utils/fonts";
+@use "utils/general";
+@use "utils/components";
+
+// blocks
+@use "blocks/header";
+@use "blocks/footer";
+
+
+// page
+@use "pages/main";
+
+
+*{
+    -webkit-tap-highlight-color: transparent;
+}
+
+.body-game{
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}

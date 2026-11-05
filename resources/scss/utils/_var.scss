@@ -1,0 +1,40 @@
+:root {
+  --color-primary: #088384;
+  --color-primary-hovered: #086E6F;
+  --color-primary-light: #0FBAB5;
+
+  --color-darkest: #1B1E22;
+  --color-dark-accent: #38414D;
+
+  --green: #007C38;
+
+
+  --color-red: #EE0000;
+  --color-white: #FFF;
+
+    --primary: #6A768F;
+
+  /* padding */
+  --padding: 15rem;
+
+  @media (max-width:1440px) {
+    --padding: 6rem;
+  }
+
+  @media (max-width:1360px) {
+    --padding: 3rem;
+  }
+
+  @media (max-width:1024px) {
+    --padding: 1.6rem;
+  }
+
+  /*****/
+
+  /* font */
+  --ff-primary: 'Manrope',
+  sans-serif;
+  /******/
+
+
+}
