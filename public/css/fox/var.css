@@ -1,0 +1,28 @@
+:root {
+    --color-1: #EE0000;
+    --color-2: #7a0202;
+    --color-3: #2B313C;
+    --color-4: #424A5A;
+    --color-5: #6A768F;
+    --color-6: #FFFFFF;
+    --color-black: #000000;
+    --padding: 6rem;
+    --padding-max: 12rem;
+    --ff-primary: 'TT Commons', sans-serif;
+
+}
+
+@media (max-width: 1440px) {
+    :root{
+        --padding: 2rem;
+    }
+
+
+}
+
+
+@media (max-width: 1024px) {
+    :root{
+        --padding-max: 2rem;
+    }
+}

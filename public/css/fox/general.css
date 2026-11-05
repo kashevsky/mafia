@@ -1,0 +1,206 @@
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 10rem;
+    font-size: 10px;
+}
+
+@media (max-width: 1920px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1440px) {
+    html {
+        font-size: calc(100vw / 1220 * 10);
+    }
+
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: calc(100vw / 448 * 10);
+    }
+}
+
+body {
+    background-color: #E8EBF5;
+    color: var(--color-black);
+    font-weight: 400;
+    font-size: 1.6rem;
+    line-height: normal;
+    font-family: var(--ff-primary);
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Скрывает полосу прокрутки в WebKit-браузерах */
+}
+
+.app {
+    width: 100%;
+    max-width: 144rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main{
+    min-height: 80vh;
+}
+
+.container {
+    width: 100%;
+    padding-left: var(--padding);
+    padding-right: var(--padding);
+}
+
+.container-min {
+    width: 100%;
+    padding-left: var(--padding-max);
+    padding-right: var(--padding-max);
+}
+
+.contents {
+    display: contents;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.text-lg {
+    font-size: 1.8rem;
+}
+
+.text-md {
+    font-size: 1.6rem;
+}
+
+.text-sm {
+    font-size: 1.4rem;
+}
+
+h1, .h1 {
+    font-size: 6rem;
+    font-weight: 700;
+}
+
+h2, .h2 {
+    font-size: 3.2rem;
+    font-weight: 700;
+}
+
+h3, .h3 {
+    font-size: 3.2rem;
+    font-weight: 600;
+}
+
+h4, .h4 {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+h5, .h5 {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+h6, .h6 {
+    font-size: 2.2rem;
+    font-weight: 600;
+}
+
+
+button, label, .pointer {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn,
+.btn--primary,
+.btn--secondary,
+.btn--red,
+.btn--fourth {
+    font-size: 2.2rem;
+    padding: 1.4rem 2.6rem;
+    line-height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    color: #fff;
+    width: fit-content;
+    transition: 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .btn,
+    .btn--primary,
+    .btn--secondary,
+    .btn--red,
+    .btn--fourth {
+        padding: 18px 26px;
+    }
+}
+
+.btn--primary {
+    background-color: var(--color-3);
+}
+
+.btn--secondary {
+    background-color: var(--color-black);
+}
+
+.btn--red {
+    background-color: var(--color-1);
+}
+
+.btn--red:hover, .btn--red:active {
+    background-color: var(--color-2);
+}
+
+.btn--fourth {
+    background-color: var(--color-2);
+}
+
+.btn--sm {
+    padding: 1.5rem 2rem;
+}
+
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4); /* Цвет и прозрачность волны */
+    border-radius: 50%;
+    pointer-events: none;
+    transform: scale(0);
+    animation: ripple-animation 1.4s linear;
+}
+
+
+img {
+    display: block;
+    margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+
+.decor-mask{
+    position: absolute;
+    z-index: -1;
+}

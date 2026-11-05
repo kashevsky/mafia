@@ -1,0 +1,80 @@
+/* MODAL START */
+
+.vbox-content {
+  @media (max-width:768px) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+.vbox-overlay {
+  z-index: 100;
+}
+
+.vbox-child {
+  box-shadow: none;
+}
+
+.vbox-inline {
+  max-width: fit-content;
+  display: contents;
+}
+
+.vbox-close {
+  display: none;
+}
+
+.v-modal {
+  width: 100%;
+  max-width: 630px;
+  position: relative;
+
+  &__close {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    z-index: 2;
+
+
+    &:hover svg {
+
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 1px;
+      transition: all 0.2s;
+    }
+  }
+}
+
+
+@media (max-width:1024px) {
+  .v-modal {
+    padding: 25px;
+  }
+
+  .v-modal__close {
+    right: 25px;
+    top: 25px;
+  }
+
+  .v-modal-response {
+    flex-direction: column-reverse;
+    padding-top: 80px;
+  }
+
+  .v-modal__content {
+    max-width: 100%;
+  }
+}
+
+
+
+
+
+/*  MODAL END */
