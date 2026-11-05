@@ -32,7 +32,7 @@ class NightFinalService
 
         $this->params['game_id'] = $this->users[0]['game_id'];
         $this->handle();
-        dd($this->params);
+
     }
 
     public function handle()

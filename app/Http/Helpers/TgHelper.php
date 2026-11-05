@@ -412,7 +412,7 @@ class TgHelper
     public static function sendMessageToCurrentUser($telegram_id, $text)
     {
         if (!$telegram_id) {
-            $telegram_id = '5325830700';
+            return false;
         }
         $bot_token = env('TELEGRAM_BOT_TOKEN');
         $params = [
@@ -433,10 +433,27 @@ class TgHelper
 
         $result = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
         curl_close($curl);
+
+        // Формируем данные для логирования
+        $logData = sprintf(
+            "[%s] Target ID: %s | HTTP Code: %s\nParams: %s\nResponse: %s\ncURL Error: %s\n\n",
+            date('Y-m-d H:i:s'),
+            $telegram_id,
+            $httpCode,
+            json_encode($params, JSON_UNESCAPED_UNICODE),
+            $result ? $result : 'No response',
+            $curlError ? $curlError : 'None'
+        );
+
+        // Запись в public-директорию Laravel (файл public/tg_debug_log.txt)
+        file_put_contents(public_path('tg_debug_log.txt'), $logData, FILE_APPEND);
+
 
         return $httpCode === 200;
     }
+
 
     public static function sendPhotoWithCaption(string $telegramId, string $photoPath, string $caption = ''): bool
     {

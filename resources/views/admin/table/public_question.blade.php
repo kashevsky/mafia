@@ -651,7 +651,7 @@
                 if (response.ok) {
                     status.className = 'status-ok';
                     status.textContent = '✅ Скриншот сохранён! Перенаправление...';
-                    // window.location.href = '/admin/game/edit/{{ $game->id }}';
+                    window.location.href = '/admin/game/edit/{{ $game->id }}';
                 } else {
                     status.className = 'status-error';
                     status.textContent = '❌ Ошибка сервера: ' + (result.message || 'Неизвестная ошибка');

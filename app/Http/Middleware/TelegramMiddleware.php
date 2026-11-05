@@ -18,7 +18,7 @@ class TelegramMiddleware
     {
 
         $params = $request->all();
-        dd($params);
+
         return $next($request);
     }
 }

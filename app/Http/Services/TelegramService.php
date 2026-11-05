@@ -153,7 +153,6 @@ class TelegramService
     {
         $chatId = $account->telegram_id;
 
-        // Правильная проверка на пустой/невалидный chat_id
         if (empty($chatId)) {
             return false;
         }
@@ -172,15 +171,15 @@ class TelegramService
             'Журналист'   => 'jur.png',
             'Дон'         => 'don.png',
             'Приспешник'  => 'pri.png',
-            'Оборотень'  => 'obo.png',
+            'Оборотень'   => 'obo.png',
             'Фредди'      => 'mst.png',
         ];
 
+        // Безопасное получение картинки. Если роли нет в списке — берем заглушку mir.png (или дефолтную)
+        // Это предотвратит падение скрипта (Error 500) посреди цикла
+        $imageName = $photoMap[$account->role] ?? 'mir.png';
 
-        $photo = env('APP_URL') . '/rols-b/' . $photoMap[$account->role] . '?v=' . time();
-
-        // Вариант 2 (если картинки в storage/app/public/rols — раскомментируй вместо asset()):
-        // $photo = Storage::disk('public')->url('rols/' . $imageName);
+        $photo = env('APP_URL') . '/rols-b/' . $imageName . '?v=' . time();
 
         $role = $account->role;
         if ($role == 'Фредди') {
@@ -195,7 +194,6 @@ class TelegramService
             [
                 [
                     'text' => '📜 Правила роли',
-                    // Вместо 'url' пишем 'web_app' и передаем прямую ссылку
                     'web_app' => ['url' => env('APP_URL') . '?tab=roles&id=' . $account->telegram_id]
                 ]
             ],
@@ -209,13 +207,17 @@ class TelegramService
 
         $keyboard = $this->buildInlineKeyboard($buttons);
 
-        $response = $this->sendPhoto(
+
+        // Добавляем return, чтобы контролировать успешность отправки
+        return $this->sendPhoto(
             $chatId,
             $photo,
             $caption,
             ['reply_markup' => json_encode(['inline_keyboard' => $keyboard])]
         );
     }
+
+
 
     public function sendRolesViaEmail($account)
     {

@@ -47,7 +47,7 @@ class AccountController extends Controller
     {
 
         $params = $request->all();
-        dd($params);
+
 
         $id = $params['id'];
 
