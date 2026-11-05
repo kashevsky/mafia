@@ -3,9 +3,11 @@
 namespace App\Http\Services;
 
 use App\Models\Account;
+use App\Models\Game;
 use App\Models\Probability;
 use App\Models\Table;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 use Log;
 
 class MafiaRoleService
@@ -64,9 +66,9 @@ class MafiaRoleService
             1 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Мафия', 'Шериф', 'Доктор', 'Каратель', 'Адвокат', 'Судья', 'Фредди', 'Мирный', 'Мирный', 'Мирный'],
             2 => ['Дон', 'Мафия', 'Мафия', 'Мафия', 'Оборотень', 'Детектив', 'Каратель', 'Фредди', 'Адвокат', 'Судья', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
             3 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Детектив', 'Доктор', 'Бомба', 'Стрелочник', 'Мирный', 'Мирный', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
-            4 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Оборотень','Детектив', 'Фредди', 'Стрелочник', 'Адвокат', 'Судья', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
+            4 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Оборотень', 'Детектив', 'Фредди', 'Стрелочник', 'Адвокат', 'Судья', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
             5 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Мафия', 'Детектив', 'Бомба', 'Каратель', 'Стрелочник', 'Адвокат', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
-            6 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Мафия', 'Шериф', 'Доктор', 'Детектив', 'Фредди', 'Судья','Мирный', 'Мирный', 'Мирный', 'Мирный'],
+            6 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Мафия', 'Шериф', 'Доктор', 'Детектив', 'Фредди', 'Судья', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
         ],
         15 => [
             1 => ['Дон', 'Приспешник', 'Мафия', 'Мафия', 'Мафия', 'Шериф', 'Каратель', 'Фредди', 'Бомба', 'Стрелочник', 'Мирный', 'Мирный', 'Мирный', 'Мирный', 'Мирный'],
@@ -295,6 +297,57 @@ class MafiaRoleService
             $selectedPlayer = $remainingPlayers->random();
             $selectedPlayer->update(['role' => $role]);
         }
+
+
+
+
+
+        $users = Account::with('immunities')->where('table_id', $table_id)->get();
+
+
+        foreach ($users as $user) {
+            $user->active = (int)$user->active;
+            $user->rating = (int)$user->rating;
+            $user->club_id = (int)$user->club_id;
+            $user->count = (int)$user->count;
+            // $user->is_alive = (int)$user->is_alive;
+            $user->is_vote = (int)$user->is_vote;
+            $user->number = (int)$user->position;
+            $user->position = (int)$user->position;
+            $user->number = (int)$user->number;
+            $user->start_game = (int)$user->start_game;
+            $user->target = (int)$user->target;
+            $user->is_alive = 1;
+            if (!$user->first_game) {
+                $user->first_game = Carbon::now();
+            }
+            $user->save();
+        }
+        $table = Table::find($table_id);
+
+        $game = Game::find($table->game_id);
+        $map = [
+            'Дон',
+            'Шулер',
+            'Приспешник',
+            'Мафия'
+        ];
+
+
+        foreach ($users as $account) {
+
+            $account->game_id = $game->id;
+            if (in_array($account->role, $map)) {
+                $account->character = 'N';
+            } else {
+                $account->character = 'Y';
+            }
+        }
+
+        $oborotens = $users->where('role', 'Оборотень');
+        $mafias = $users->where('role', 'Мафия');
+
+
 
 
         return true;

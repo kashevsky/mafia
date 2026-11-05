@@ -18,86 +18,14 @@ class PlayController extends Controller
 {
     public function index($table_id)
     {
+
+        $table = Table::find($table_id);
+
+
         $users = Account::with('immunities')->where('table_id', $table_id)->get();
 
 
-        foreach ($users as $user) {
-            $user->active = (int)$user->active;
-            $user->rating = (int)$user->rating;
-            $user->club_id = (int)$user->club_id;
-            $user->count = (int)$user->count;
-            // $user->is_alive = (int)$user->is_alive;
-            $user->is_vote = (int)$user->is_vote;
-            $user->number = (int)$user->position;
-            $user->position = (int)$user->position;
-            $user->number = (int)$user->number;
-            $user->start_game = (int)$user->start_game;
-            $user->target = (int)$user->target;
-            $user->is_alive = 1;
-            if (!$user->first_game) {
-                $user->first_game = Carbon::now();
-            }
-            $user->save();
-        }
-        $table = Table::find($table_id);
-
         $game = Game::find($table->game_id);
-        $map = [
-            'Дон',
-            'Шулер',
-            'Приспешник',
-            'Мафия'
-        ];
-
-
-        foreach ($users as $account) {
-
-            $account->game_id = $game->id;
-            if (in_array($account->role, $map)) {
-                $account->character = 'N';
-            } else {
-                $account->character = 'Y';
-            }
-        }
-
-        $oborotens = $users->where('role', 'Оборотень');
-        $mafias = $users->where('role', 'Мафия');
-
-
-
-        if ($oborotens->count() > 1) {
-
-            $allUsernames = $oborotens->pluck('nickname')->toArray();
-
-            foreach ($oborotens as $oboroten) {
-                $otherOborotens = array_filter($allUsernames, function ($username) use ($oboroten) {
-                    return $username !== $oboroten->nickname;
-                });
-                $text = "С вами за столом есть еще Оборотни. Это игроки с никами: " . implode(', ', $otherOborotens);
-                TgHelper::sendMessageToCurrentUser($oboroten->telegram_id, $text);
-                sleep(0.5);
-            }
-        }
-
-        if ($mafias->count() > 1) {
-            // Собираем ники всех мафиози
-            $allMafiaNames = $mafias->pluck('nickname')->toArray();
-
-            foreach ($mafias as $mafia) {
-                // Исключаем текущего мафиози из списка для самого себя
-                $otherMafias = array_filter($allMafiaNames, function ($username) use ($mafia) {
-                    return $username !== $mafia->nickname;
-                });
-
-                $text = "С вами за столом есть еще Мафия. Это игроки с никами: " . implode(', ', $otherMafias);
-                TgHelper::sendMessageToCurrentUser($mafia->telegram_id, $text);
-                sleep(0.5);
-            }
-        }
-
-
-
-
 
         return view('play', compact('users', 'table', 'game'));
     }

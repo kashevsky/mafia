@@ -179,7 +179,11 @@ class TelegramService
         // Это предотвратит падение скрипта (Error 500) посреди цикла
         $imageName = $photoMap[$account->role] ?? 'mir.png';
 
-        $photo = env('APP_URL') . '/rols-b/' . $imageName . '?v=' . time();
+        // $photo = env('APP_URL') . '/rols-b/' . $imageName . '?v=' . time();
+        $photo = public_path('rols-b/' . $imageName);
+    if (!file_exists($photo)) {
+        $photo = public_path('rols-b/mir.png');
+    }
 
         $role = $account->role;
         if ($role == 'Фредди') {
