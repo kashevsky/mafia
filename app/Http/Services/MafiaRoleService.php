@@ -342,6 +342,7 @@ class MafiaRoleService
             } else {
                 $account->character = 'Y';
             }
+            $account->save();
         }
 
         $oborotens = $users->where('role', 'Оборотень');
