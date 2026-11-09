@@ -170,7 +170,9 @@ class TableController extends Controller
         $htmlContentForBrowser = view('admin.table.public_question', $browserData)->render();
 
         // Возвращаем пользователю страницу, где кнопка на месте
+
         return response($htmlContentForBrowser);
+
     }
 
 

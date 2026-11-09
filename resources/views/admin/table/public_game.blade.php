@@ -477,7 +477,7 @@
                     height: element.offsetHeight
                 });
 
-                const dataUrl = canvas.toDataURL('image/png');
+                const dataUrl = canvas.toDataURL('image/png', 0.8);
 
                 // Формируем данные для отправки на сервер
                 const formData = new FormData();

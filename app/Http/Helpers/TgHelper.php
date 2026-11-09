@@ -528,7 +528,8 @@ class TgHelper
                 [
                     [
                         'text' => 'Скачать результаты',
-                        'url'  => env('APP_URL') . '/save-results-finish/' . $photoToTg,
+
+                        'web_app' => ['url' => env('APP_URL') . '/save-results-finish/' . $photoToTg]
                     ]
                 ]
             ]
@@ -597,7 +598,7 @@ class TgHelper
                 [
                     [
                         'text' => 'Скачать результаты',
-                        'url'  => $downloadUrl
+                        'web_app' => ['url' => $downloadUrl]
                     ]
                 ]
             ]

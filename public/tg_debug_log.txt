@@ -1,0 +1,25 @@
+[2026-11-06 16:56:07] Target ID: 5325830700 | HTTP Code: 200
+Params: {"chat_id":"5325830700","text":"С вами за столом есть еще Мафия. Это игроки с никами: Кудряш, Терминатор","parse_mode":"HTML"}
+Response: {"ok":true,"result":{"message_id":4960,"from":{"id":8338210523,"is_bot":true,"first_name":"F.O.K.S. PORTAL","username":"foks_fed_bot"},"chat":{"id":5325830700,"first_name":"Dima","last_name":"Kashevski","username":"kashevsky_dima","type":"private"},"date":1793984168,"text":"\u0421 \u0432\u0430\u043c\u0438 \u0437\u0430 \u0441\u0442\u043e\u043b\u043e\u043c \u0435\u0441\u0442\u044c \u0435\u0449\u0435 \u041c\u0430\u0444\u0438\u044f. \u042d\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0438 \u0441 \u043d\u0438\u043a\u0430\u043c\u0438: \u041a\u0443\u0434\u0440\u044f\u0448, \u0422\u0435\u0440\u043c\u0438\u043d\u0430\u0442\u043e\u0440"}}
+cURL Error: None
+
+[2026-11-06 16:56:28] Target ID: 5325830700 | HTTP Code: 200
+Params: {"chat_id":"5325830700","text":"С вами за столом есть еще Оборотни. Это игроки с никами: Уил Смит","parse_mode":"HTML"}
+Response: {"ok":true,"result":{"message_id":4962,"from":{"id":8338210523,"is_bot":true,"first_name":"F.O.K.S. PORTAL","username":"foks_fed_bot"},"chat":{"id":5325830700,"first_name":"Dima","last_name":"Kashevski","username":"kashevsky_dima","type":"private"},"date":1793984189,"text":"\u0421 \u0432\u0430\u043c\u0438 \u0437\u0430 \u0441\u0442\u043e\u043b\u043e\u043c \u0435\u0441\u0442\u044c \u0435\u0449\u0435 \u041e\u0431\u043e\u0440\u043e\u0442\u043d\u0438. \u042d\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0438 \u0441 \u043d\u0438\u043a\u0430\u043c\u0438: \u0423\u0438\u043b \u0421\u043c\u0438\u0442"}}
+cURL Error: None
+
+[2026-11-06 16:57:17] Target ID: 5325830700 | HTTP Code: 200
+Params: {"chat_id":"5325830700","text":"С вами за столом есть еще Мафия. Это игроки с никами: Эминем, _Хиппи","parse_mode":"HTML"}
+Response: {"ok":true,"result":{"message_id":4965,"from":{"id":8338210523,"is_bot":true,"first_name":"F.O.K.S. PORTAL","username":"foks_fed_bot"},"chat":{"id":5325830700,"first_name":"Dima","last_name":"Kashevski","username":"kashevsky_dima","type":"private"},"date":1793984238,"text":"\u0421 \u0432\u0430\u043c\u0438 \u0437\u0430 \u0441\u0442\u043e\u043b\u043e\u043c \u0435\u0441\u0442\u044c \u0435\u0449\u0435 \u041c\u0430\u0444\u0438\u044f. \u042d\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0438 \u0441 \u043d\u0438\u043a\u0430\u043c\u0438: \u042d\u043c\u0438\u043d\u0435\u043c, _\u0425\u0438\u043f\u043f\u0438"}}
+cURL Error: None
+
+[2026-11-06 17:18:23] Target ID: 5325830700 | HTTP Code: 200
+Params: {"chat_id":"5325830700","text":"С вами за столом есть еще Мафия. Это игроки с никами: Дмитрий2, Уил Смит","parse_mode":"HTML"}
+Response: {"ok":true,"result":{"message_id":4971,"from":{"id":8338210523,"is_bot":true,"first_name":"F.O.K.S. PORTAL","username":"foks_fed_bot"},"chat":{"id":5325830700,"first_name":"Dima","last_name":"Kashevski","username":"kashevsky_dima","type":"private"},"date":1793985504,"text":"\u0421 \u0432\u0430\u043c\u0438 \u0437\u0430 \u0441\u0442\u043e\u043b\u043e\u043c \u0435\u0441\u0442\u044c \u0435\u0449\u0435 \u041c\u0430\u0444\u0438\u044f. \u042d\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0438 \u0441 \u043d\u0438\u043a\u0430\u043c\u0438: \u0414\u043c\u0438\u0442\u0440\u0438\u04392, \u0423\u0438\u043b \u0421\u043c\u0438\u0442"}}
+cURL Error: None
+
+[2026-11-07 20:59:08] Target ID: 5325830700 | HTTP Code: 200
+Params: {"chat_id":"5325830700","text":"С вами за столом есть еще Мафия. Это игроки с никами: Кудряш, Терминатор","parse_mode":"HTML"}
+Response: {"ok":true,"result":{"message_id":5192,"from":{"id":8338210523,"is_bot":true,"first_name":"F.O.K.S. PORTAL","username":"foks_fed_bot"},"chat":{"id":5325830700,"first_name":"Dima","last_name":"Kashevski","username":"kashevsky_dima","type":"private"},"date":1794085148,"text":"\u0421 \u0432\u0430\u043c\u0438 \u0437\u0430 \u0441\u0442\u043e\u043b\u043e\u043c \u0435\u0441\u0442\u044c \u0435\u0449\u0435 \u041c\u0430\u0444\u0438\u044f. \u042d\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0438 \u0441 \u043d\u0438\u043a\u0430\u043c\u0438: \u041a\u0443\u0434\u0440\u044f\u0448, \u0422\u0435\u0440\u043c\u0438\u043d\u0430\u0442\u043e\u0440"}}
+cURL Error: None
+

@@ -412,19 +412,24 @@ class GameController extends Controller
 
         // ИСПРАВЛЕНО: Формируем реальную ссылку на сохраненный скриншот
         $url_ = $appUrl . '/screenshots/' . $filename;
+        // Ищем сохраненный ранее текстовый слепок раунда
+        $snap = TempPublic::where('table_id', $table->id)
+            ->where('step', $table->step)
+            ->first();
+
+        // ИСПРАВЛЕНО: Меняем данные в базе ТОЛЬКО если запись реально найдена
+        if ($snap) {
+            $snap->src = $url_;
+            $snap->save();
+        }
+
 
         foreach ($accounts as $account) {
             if (!$account->telegram_id) {
                 continue;
             }
 
-            // Ищем сохраненный ранее текстовый слепок раунда
-            $snap = TempPublic::where('table_id', $table->id)
-                ->where('step', $table->step)
-                ->first();
 
-            $snap->src = $url_;
-            $snap->save();
 
             // Очищаем текст от ссылки <a>, так как она теперь будет полноценной кнопкой под фото
             $message = "📊 <b>Результаты игры стола №{$table->id} (Игра {$table->step})</b>";
@@ -446,18 +451,7 @@ class GameController extends Controller
                 // Резервный вариант, если слепка игры нет
                 TgHelper::sendPhotoWithCaption($account->telegram_id, $src, $message);
             }
-
-            // TgHelper::sendMessage($message, $account->telegram_id);
-            // TgHelper::sendPhotoWithCaption($account->telegram_id, $src, $message);
         }
-
-        // TgHelper::sendPhotoWithGroupWebApp(
-        //     '-1004385546556',
-        //     $src,
-        //     $message,
-        //     '📊 Открыть результаты',
-        //     $resultUrl
-        // );
 
         return response()->json([
             'url' => $url_,
@@ -528,9 +522,9 @@ class GameController extends Controller
 
         $accounts = Account::where('table_id', $table_id)->get();
         foreach ($accounts as $account) {
-            $account->rating = $account->rating_before_game;
-            $account->rating_before_game = 0;
-            $account->save();
+            // $account->rating = $account->rating_before_game;
+            // $account->rating_before_game = 0;
+            // $account->save();
         }
 
         return json_encode(['status' => 'success']);

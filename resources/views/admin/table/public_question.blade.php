@@ -632,7 +632,7 @@
                     logging: false,
                     ignoreElements: el => el.hasAttribute('data-html2canvas-ignore')
                 });
-                const dataUrl = canvas.toDataURL('image/png');
+               const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
                 element.classList.remove('is-screenshotting');
                 compactified.forEach(s => s.classList.remove('compact'));
