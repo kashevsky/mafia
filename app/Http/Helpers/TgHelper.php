@@ -411,286 +411,133 @@ class TgHelper
 
     public static function sendMessageToCurrentUser($telegram_id, $text)
     {
-        if (!$telegram_id) {
+        if (empty($telegram_id)) {
             return false;
         }
-        $bot_token = env('TELEGRAM_BOT_TOKEN');
-        $params = [
-            'chat_id' => $telegram_id,
-            'text' => $text,
-            'parse_mode' => 'HTML',
-        ];
 
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://api.telegram.org/bot' . $bot_token . '/sendMessage',
-            CURLOPT_POST => true,
-            CURLOPT_TIMEOUT => 10,
-            CURLOPT_POSTFIELDS => $params,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false
+        // URL вашего удаленного API-сервера
+        $apiUrl = env('API_URL') . '/telegram/send-message-to-current-user';
+
+        // Перенаправляем запрос на удаленный сервер
+        $response = \Illuminate\Support\Facades\Http::post($apiUrl, [
+            'telegram_id' => $telegram_id,
+            'text'        => $text,
         ]);
 
-        $result = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($curl);
-        curl_close($curl);
 
-        // Формируем данные для логирования
-        $logData = sprintf(
-            "[%s] Target ID: %s | HTTP Code: %s\nParams: %s\nResponse: %s\ncURL Error: %s\n\n",
-            date('Y-m-d H:i:s'),
-            $telegram_id,
-            $httpCode,
-            json_encode($params, JSON_UNESCAPED_UNICODE),
-            $result ? $result : 'No response',
-            $curlError ? $curlError : 'None'
-        );
-
-        // Запись в public-директорию Laravel (файл public/tg_debug_log.txt)
-        file_put_contents(public_path('tg_debug_log.txt'), $logData, FILE_APPEND);
-
-
-        return $httpCode === 200;
-    }
-
-
-    public static function sendPhotoWithCaption(string $telegramId, string $photoPath, string $caption = ''): bool
-    {
-
-
-
-        $botToken = env('TELEGRAM_BOT_TOKEN');
-
-
-
-        $params = [
-            'chat_id'   => $telegramId,
-            'caption'   => $caption,
-            'parse_mode' => 'HTML',
-        ];
-
-        // Для отправки локального файла используем CURLFile (работает в современных PHP)
-
-        $params['photo'] =  $photoPath;
-        $baseUrl = env('APP_URL') . '/';
-        $photoPath = $photoPath; // Ваш исходный путь (например, 'images/photo.jpg' или 'https://foksfed.com')
-
-        // Если путь НЕ начинается с http:// или https://, добавляем базовый URL
-        if (!str_starts_with($photoPath, 'http://') && !str_starts_with($photoPath, 'https://')) {
-            // Убираем лишний левый слэш у пути, если он есть, чтобы не получилось https://foksfed.com...
-            $params['photo'] = $baseUrl . ltrim($photoPath, '/');
-        } else {
-            $params['photo'] = $photoPath;
+        if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Ошибка отправки сообщения через удаленное API', [
+                'status' => $response->status(),
+                'error'  => $response->body()
+            ]);
+            return false;
         }
 
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL             => 'https://api.telegram.org/bot' . $botToken . '/sendPhoto',
-            CURLOPT_POST            => true,
-            CURLOPT_TIMEOUT         => 10,
-            CURLOPT_POSTFIELDS      => $params,          // важно: НЕ json_encode, это multipart/form-data
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_SSL_VERIFYPEER  => false,           // в продакшене лучше включить и настроить CA
-        ]);
-
-        $result = curl_exec($curl);
-
-
-
-        $err = curl_error($curl);
-
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        Log::info('Telegram API response', [
-            'raw_response' => $result,
-        ]);
-
-
-
-
-        return $httpCode === 200;
+        return $response->json('success') === true;
     }
 
 
 
-    public static function sendFinishRating(string $telegramId, string $photoPath, string $caption = ''): bool
+    public static  function sendPhotoWithCaption(string $telegramId, string $photoPath, string $caption = '')
     {
-        $botToken = env('TELEGRAM_BOT_TOKEN');
-
-
-        $photoToTg = str_replace('screenshots/', '', $photoPath);
-
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => 'Скачать результаты',
-
-                        'web_app' => ['url' => env('APP_URL') . '/save-results-finish/' . $photoToTg]
-                    ]
-                ]
-            ]
-        ];
-
-        $params = [
-            'chat_id'      => $telegramId,
-            'caption'      => $caption,
-            'parse_mode'   => 'HTML',
-            'reply_markup' => json_encode($keyboard), // Обязательно кодируем в JSON
-        ];
-
-        $baseUrl = env('APP_URL') . '/';
-
-        // Если путь НЕ начинается с http:// или https://, добавляем базовый URL
-        if (!str_starts_with($photoPath, 'http://') && !str_starts_with($photoPath, 'https://')) {
-            $params['photo'] = $baseUrl . ltrim($photoPath, '/');
-        } else {
-            $params['photo'] = $photoPath;
+        if (empty($telegramId) || empty($photoPath)) {
+            return false;
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL             => 'https://api.telegram.org/bot' . $botToken . '/sendPhoto',
-            CURLOPT_POST            => true,
-            CURLOPT_TIMEOUT         => 10,
-            CURLOPT_POSTFIELDS      => $params,          // multipart/form-data принимает reply_markup в виде строки
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_SSL_VERIFYPEER  => false,
+        // URL вашего удаленного API-сервера
+        $apiUrl = env('API_URL') . '/telegram/send-photo-with-caption';
+
+        // Просто перенаправляем параметры в исходном виде на удаленный сервер
+        $response = \Illuminate\Support\Facades\Http::post($apiUrl, [
+            'telegram_id' => $telegramId,
+            'photo_path'  => $photoPath,
+            'caption'     => $caption,
         ]);
 
-        $result = curl_exec($curl);
-        $err = curl_error($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+        if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Ошибка отправки фото с подписью через удаленное API', [
+                'status' => $response->status(),
+                'error'  => $response->body()
+            ]);
+            return false;
+        }
 
-        Log::info('Telegram API response', [
-            'raw_response' => $result,
-        ]);
-
-
-        return $httpCode === 200;
+        return $response->json('success') === true;
     }
 
 
-    public static function sendPhotoWithWebApp(
+
+
+    public function sendFinishRating(string $telegramId, string $photoPath, string $caption = ''): bool
+    {
+        if (empty($telegramId) || empty($photoPath)) {
+            return false;
+        }
+
+        // URL вашего удаленного API-сервера
+        $apiUrl = 'https://xn-----6kcbheljbb4bw1aa2ccm1a7g2c.com';
+
+        // Отправляем параметры в исходном виде на удаленный сервер
+        $response = \Illuminate\Support\Facades\Http::post($apiUrl, [
+            'telegram_id' => $telegramId,
+            'photo_path'  => $photoPath,
+            'caption'     => $caption,
+        ]);
+
+        // Логируем ошибку, если запрос к удаленному API завершился неудачно
+        if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Ошибка отправки финального рейтинга через удаленное API', [
+                'status' => $response->status(),
+                'error'  => $response->body()
+            ]);
+            return false;
+        }
+
+        // Возвращаем результат обработки сервером
+        return $response->json('success') === true;
+    }
+
+
+
+    public function sendPhotoWithWebApp(
         string $telegramId,
         string $photoPath,
         string $caption,
         string $buttonText,
         string $webAppUrl,
-        string $downloadUrl // Добавили URL для скачивания результатов
+        string $downloadUrl
     ): bool {
-        $botToken = env('TELEGRAM_BOT_TOKEN');
-
-
-        // Формируем структуру клавиатуры с двумя кнопками (друг под другом)
-        $replyMarkup = [
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => $buttonText,
-                        'web_app' => ['url' => $webAppUrl]
-                    ]
-                ],
-                [
-                    [
-                        'text' => 'Скачать результаты',
-                        'web_app' => ['url' => $downloadUrl]
-                    ]
-                ]
-            ]
-        ];
-
-
-        $params = [
-            'chat_id'      => $telegramId,
-            'photo'        => $photoPath . '?v=' . time(),
-            'caption'      => $caption,
-            'parse_mode'   => 'HTML',
-            'reply_markup' => json_encode($replyMarkup)
-        ];
-
-
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL             => 'https://api.telegram.org/bot' . $botToken . '/sendPhoto',
-            CURLOPT_POST            => true,
-            CURLOPT_TIMEOUT         => 10,
-            CURLOPT_POSTFIELDS      => $params,
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_SSL_VERIFYPEER  => false,
-        ]);
-
-        $result = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-
-        return $httpCode === 200;
-    }
-
-
-    public static function sendPhotoWithGroupWebApp(string $chatId, string $photoPath, string $caption, string $buttonText, string $resultUrl): bool
-    {
-        $botToken = env('TELEGRAM_BOT_TOKEN');
-        $botName = 'foks_fed_bot';
-
-        // Шаг 1. Формируем URL для группы
-        if (preg_match('/temp-public\/(\d+)/', $resultUrl, $matches)) {
-            $snapId = $matches[1];
-            // Убедитесь, что 'app' — это актуальный Short Name вашего приложения в @BotFather
-            $webAppGroupUrl = "https://t.me/{$botName}/app?startapp=results_{$snapId}";
-        } else {
-            $webAppGroupUrl = $resultUrl;
+        if (empty($telegramId) || empty($photoPath)) {
+            return false;
         }
 
-        // Шаг 2. Формируем структуру кнопок
-        $replyMarkup = [
-            'inline_keyboard' => [
-                [
-                    [
-                        'text' => $buttonText,
-                        'url'  => $webAppGroupUrl // В группах работает ТОЛЬКО тип 'url'
-                    ]
-                ]
-            ]
-        ];
+        // URL вашего удаленного API-сервера
+        $apiUrl = 'https://xn-----6kcbheljbb4bw1aa2ccm1a7g2c.com';
 
-        // Шаг 3. Собираем чистый массив параметров
-        $params = [
-            'chat_id'      => $chatId,
-            'photo'        => $photoPath, // Работает, если это прямая ссылка вида https://...
+        // Отправляем параметры в исходном виде на удаленный сервер
+        $response = \Illuminate\Support\Facades\Http::post($apiUrl, [
+            'telegram_id'  => $telegramId,
+            'photo_path'   => $photoPath,
             'caption'      => $caption,
-            'parse_mode'   => 'HTML',
-            'reply_markup' => $replyMarkup // Оставляем массивом, json_encode сделаем для всего пакета сразу
-        ];
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL             => 'https://api.telegram.org/bot' . $botToken . '/sendPhoto',
-            CURLOPT_POST            => true,
-            CURLOPT_TIMEOUT         => 10,
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_SSL_VERIFYPEER  => false,
-            // Передаем данные как чистый JSON-пакет:
-            CURLOPT_POSTFIELDS      => json_encode($params),
-            CURLOPT_HTTPHEADER      => [
-                'Content-Type: application/json'
-            ],
+            'button_text'  => $buttonText,
+            'web_app_url'  => $webAppUrl,
+            'download_url' => $downloadUrl,
         ]);
 
-        $result = curl_exec($curl);
+        // Логируем ошибку, если запрос к удаленному API завершился неудачно
+        if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Ошибка отправки фото с WebApp через удаленное API', [
+                'status' => $response->status(),
+                'error'  => $response->body()
+            ]);
+            return false;
+        }
 
-        // Временный дебаг: если не отправляется, раскомментируйте строку ниже, чтобы увидеть ошибку в логах Laravel
-        // \Log::info('Telegram response: ' . $result);
-
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        return $httpCode === 200;
+        // Возвращаем результат обработки сервером
+        return $response->json('success') === true;
     }
+
+
+
+
 }

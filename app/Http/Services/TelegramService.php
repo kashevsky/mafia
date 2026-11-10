@@ -34,23 +34,66 @@ class TelegramService
      */
     public function sendPhoto(string $chatId, $photo, string $caption = '', array $options = []): bool
     {
-        // Объединяем базовые параметры с дополнительными через array_merge
-        $payload = array_merge([
-            'chat_id' => $chatId,
-            'caption' => $caption,
-        ], $options);
-
-        // Если передан путь к файлу, отправляем как multipart/form-data (файл)
-        if (is_string($photo) && file_exists($photo)) {
-            $file = fopen($photo, 'r');
-            $payload['photo'] = $file;
-
-            return $this->multipartRequest('sendPhoto', $payload);
+        if (empty($chatId) || empty($photo)) {
+            return false;
         }
 
-        // Иначе считаем, что это URL
-        $payload['photo'] = $photo;
-        return $this->request('sendPhoto', $payload);
+        // URL вашего удаленного API-сервера
+        $apiUrl = env('API_URL') . '/telegram/send-photo';
+
+        // Формируем плоский массив параметров (без вложенных массивов)
+        $params = [
+            'chat_id' => $chatId,
+            'caption' => $caption,
+            // Кодируем в JSON, чтобы избежать вложенных массивов при multipart-отправке
+            'options' => json_encode($options, JSON_UNESCAPED_UNICODE),
+        ];
+
+        // Если передан локальный файл, отправляем его физически (multipart)
+        if (is_string($photo) && file_exists($photo)) {
+            $response = \Illuminate\Support\Facades\Http::attach(
+                'photo',
+                file_get_contents($photo),
+                basename($photo)
+            )->post($apiUrl, $params); // Теперь $params плоский, ошибки не будет
+        } else {
+            // Если это просто URL-ссылка или Telegram File ID
+            $params['photo'] = $photo;
+            $response = \Illuminate\Support\Facades\Http::post($apiUrl, $params);
+        }
+  
+        if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Ошибка метода sendPhoto через удаленное API', [
+                'status' => $response->status(),
+                'error'  => $response->body()
+            ]);
+            return false;
+        }
+
+        return $response->json('success') === true;
+    }
+
+
+    private function request(string $method, array $data): bool
+    {
+        try {
+            $response = Http::asForm()->post("{$this->apiUrl}/{$method}", $data);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            Log::error('Telegram API Error', [
+                'method' => $method,
+                'data' => $data,
+                'response' => $response->body()
+            ]);
+
+            return false;
+        } catch (\Exception $e) {
+            Log::error('Telegram Connection Error', ['message' => $e->getMessage()]);
+            return false;
+        }
     }
 
 
@@ -93,27 +136,7 @@ class TelegramService
     /**
      * Базовый запрос к API (JSON)
      */
-    private function request(string $method, array $data): bool
-    {
-        try {
-            $response = Http::asForm()->post("{$this->apiUrl}/{$method}", $data);
 
-            if ($response->successful()) {
-                return true;
-            }
-
-            Log::error('Telegram API Error', [
-                'method' => $method,
-                'data' => $data,
-                'response' => $response->body()
-            ]);
-
-            return false;
-        } catch (\Exception $e) {
-            Log::error('Telegram Connection Error', ['message' => $e->getMessage()]);
-            return false;
-        }
-    }
 
     /**
      * Запрос с файлом (multipart/form-data)
@@ -181,9 +204,9 @@ class TelegramService
 
         // $photo = env('APP_URL') . '/rols-b/' . $imageName . '?v=' . time();
         $photo = public_path('rols-b/' . $imageName);
-    if (!file_exists($photo)) {
-        $photo = public_path('rols-b/mir.png');
-    }
+        if (!file_exists($photo)) {
+            $photo = public_path('rols-b/mir.png');
+        }
 
         $role = $account->role;
         if ($role == 'Фредди') {
