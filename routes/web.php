@@ -277,4 +277,4 @@ Route::get('/thanks', '\App\Http\Controllers\AccountController@thanks')->name('a
 Route::post('/update-booking-game', '\App\Http\Controllers\GameController@updateBooking')->name('game.update-booking');
 
 
-Route::get('/account/show/{id}', '\App\Http\Controllers\AccountController@showTarget');
+Route::get('/account/show/{id}', '\App\Http\Controllers\AccountController@showTarget');/
